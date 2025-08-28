@@ -17,24 +17,26 @@ pair<double, double> directionFromAngle(double angle_deg) {
 
 int main(int argc, char *argv[]) {
 
-  if (argc < 2) {
-    cerr << "Usage: " << argv[0] << " <gps_data_file>" << endl;
+  // ✅ Fix 1: Correct argument check
+  if (argc < 3) {
+    cerr << "Usage: " << argv[0] << " <gps_data_file> <odom_output_file>" << endl;
     return 1;
   }
 
-  // store file path to GPS data
+  // store file paths
   string gps_data = argv[1];
-
-  // file path to store result
   string odom_commands = argv[2];
 
   // decode GPS data from file
   auto result = readUbloxFile(gps_data);
-  if(static_cast<int>(result.first.lat)==0 && static_cast<int>(result.first.lon)==0 && static_cast<int>(result.second.lat)==0 && static_cast<int>(result.second.lon)==0)
-  {
-    cout<<"Error: Invalid GPS Coordinates"<<endl;
+
+  // ✅ Fix 2: Better GPS validation
+  if ((result.first.lat == 0 && result.first.lon == 0) ||
+      (result.second.lat == 0 && result.second.lon == 0)) {
+    cerr << "Error: Invalid GPS Coordinates" << endl;
     return 1;
   }
+
   cout << "Start -> Lat: " << result.first.lat << " Lon: " << result.first.lon
        << endl;
   cout << "Goal  -> Lat: " << result.second.lat << " Lon: " << result.second.lon
@@ -58,6 +60,12 @@ int main(int argc, char *argv[]) {
   // Path planning
   Planner planner(grid.getGrid());
   auto path = planner.pathplanning(start, goal);
+
+  // ✅ Fix 3: Check if path is empty
+  if (path.empty()) {
+    cerr << "Error: Path planning failed (no path found)" << endl;
+    return 1;
+  }
 
   // print planned path
   cout << "Planned Path:" << endl;
