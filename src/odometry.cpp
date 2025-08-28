@@ -1,14 +1,12 @@
 #include "odometry.h"
 #include <cmath>
-#include <ctime>
-#include <iterator>
-#include <numeric>
+#include <vector>
 
 using namespace std;
 
 Odometry::Odometry(double wheel_radius, double rpm)
     : radius(wheel_radius), rpm(rpm) {
-  // Linear velocity (m/s) =(wheel circumference * revolutions per second)
+  // Linear velocity (m/s) = wheel circumference * revolutions per second
   double rps = rpm / 60.0;
   linear_vel = 2 * M_PI * radius * rps;
 }
@@ -23,10 +21,11 @@ double Odometry::angle(int x1, int y1, int x2, int y2) {
 }
 
 MotionCommand Odometry::computeCommands(vector<pair<int, int>> &path) {
+  MotionCommand res = {0.0, 0.0};
 
-  MotionCommand res = {0.0, 0.0}; // store total time and angle traversed
+  if (path.size() < 2) {
+    return res; // no movement needed
+  }
 
- /* Implement you odometry logic here */ 
-
-  return res;
-}
+  double total_time = 0.0;
+  dou
